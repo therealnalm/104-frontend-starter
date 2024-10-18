@@ -25,7 +25,7 @@ export default class JournalingConcept {
   async create(title: string, owner: ObjectId) {
     await this.assertUniqueJournal(title, owner);
     const _id = await this.journals.createOne({ title, owner, objects: [] });
-    return { msg: "Journal created successfully!", journal: _id };
+    return { msg: "Journal created successfully!", journalid: _id };
   }
 
   async getJournalById(_id: ObjectId) {

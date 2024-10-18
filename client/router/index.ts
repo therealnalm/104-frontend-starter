@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
+import MyJournalsView from "../views/MyJournalsView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import SettingView from "../views/SettingView.vue";
 
@@ -34,9 +35,20 @@ const router = createRouter({
       },
     },
     {
+      path: "/journal/:id",
+      name: "Journal",
+      component: SettingView,
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/:catchAll(.*)",
       name: "not-found",
       component: NotFoundView,
+    },
+    {
+      path: "/Journals",
+      name: "Journals",
+      component: MyJournalsView,
     },
   ],
 });

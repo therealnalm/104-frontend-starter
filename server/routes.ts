@@ -68,8 +68,8 @@ class Routes {
   async createJournal(session: SessionDoc, title: string) {
     const user = Sessioning.getUser(session);
     const output = await Journaling.create(title, user);
-    await Permissioning.createPerm(output.journal);
-    await Permissioning.giveUserPerm(user, output.journal);
+    await Permissioning.createPerm(output.journalid);
+    await Permissioning.giveUserPerm(user, output.journalid);
     return output;
   }
 
@@ -91,10 +91,11 @@ class Routes {
     const user = Sessioning.getUser(session);
     const perms = await Permissioning.getAuthorizedActions(user);
     const journals = perms.map((perm) => perm.object);
+    console.log("here!");
     return journals;
   }
 
-  @Router.post("/journals/:journalid")
+  @Router.post("/journals/:journlaid")
   async addJournalEntry(session: SessionDoc, journalid: string, entryid: string) {
     //come back and update entry object
     const journal = new ObjectId(journalid);
@@ -119,7 +120,9 @@ class Routes {
     const user = Sessioning.getUser(session);
     const journal = new ObjectId(journalid);
     await Permissioning.hasPerm(user, journal);
-    return { msg: `Successfully got journal!`, journal: await Journaling.getJournalById(journal) };
+    const result = await Journaling.getJournalById(journal);
+    console.log(`out: ${result.title}`);
+    return { msg: `Successfully got journal!`, journal: result };
   }
 
   @Router.post("/journals/users/:username")
@@ -166,7 +169,9 @@ class Routes {
   @Router.get("/users/:username")
   @Router.validate(z.object({ username: z.string().min(1) }))
   async getUser(username: string) {
-    return await Authing.getUserByUsername(username);
+    const output = await Authing.getUserByUsername(username);
+    console.log(output);
+    return output;
   }
 
   //when registering a new user, their own 'self' journal is automatically created
@@ -175,8 +180,8 @@ class Routes {
     Sessioning.isLoggedOut(session);
     const newUser = await Authing.create(username, password);
     const output = await Journaling.create("self", newUser.user?._id as ObjectId);
-    await Permissioning.createPerm(output.journal);
-    await Permissioning.giveUserPerm(newUser.user?._id as ObjectId, output.journal);
+    await Permissioning.createPerm(output.journalid);
+    await Permissioning.giveUserPerm(newUser.user?._id as ObjectId, output.journalid);
     return newUser;
   }
 

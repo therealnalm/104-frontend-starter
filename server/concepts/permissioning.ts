@@ -3,7 +3,7 @@ import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface PermissionDoc extends BaseDoc {
-  object: Object;
+  object: object;
   users: ObjectId[];
 }
 
@@ -71,7 +71,7 @@ export default class PermissioningConcept {
    * @param perm
    * @returns
    */
-  async giveUserPerm(user: ObjectId, object: Object) {
+  async giveUserPerm(user: ObjectId, object: object) {
     const objectPerms = await this.perms.readOne({ object });
     if (objectPerms == null) {
       throw new NotFoundError(`No object found in perms: ${object.toString}`);
@@ -85,7 +85,7 @@ export default class PermissioningConcept {
     return { msg: `Added user: ${user} to perm: ${object.toString}!` };
   }
 
-  async removeUserPerm(user: ObjectId, object: Object) {
+  async removeUserPerm(user: ObjectId, object: object) {
     const objectPerms = await this.perms.readOne({ object });
     if (objectPerms == null) {
       throw new NotFoundError(`No object found in perms: ${object.toString}`);
@@ -102,9 +102,8 @@ export default class PermissioningConcept {
    * @Throws a notfounderror if the object does not have permissions set up
    * @throws a NotAllowedError if the user does not have permissions for the Object
    */
-  async hasPerm(user: ObjectId, object: Object) {
+  async hasPerm(user: ObjectId, object: object) {
     const objectPerms = await this.perms.readOne({ object });
-    console.log(objectPerms);
     if (objectPerms == null) {
       throw new NotFoundError(`No permissions found for object: ${object.toString}`);
     } else if (!objectPerms.users.some((id) => user.equals(id))) {
@@ -112,7 +111,7 @@ export default class PermissioningConcept {
     }
   }
 
-  async delPerm(object: Object) {
+  async delPerm(object: object) {
     await this.perms.deleteOne({ object });
     return { msg: "Object perms deleted!" };
   }
@@ -123,7 +122,7 @@ export default class PermissioningConcept {
    * @param object The object to check if it has already had a permDoc created for it
    * @throws NotAllowedError if the object already has a PermDoc created for it
    */
-  private async checkObjectIsUnique(object: Object) {
+  private async checkObjectIsUnique(object: object) {
     const objectPerms = await this.perms.readOne({ object });
     if (!objectPerms == null) {
       throw new NotAllowedError(`Object:${object} already has perms set assigned`);

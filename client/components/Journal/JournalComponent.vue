@@ -13,52 +13,23 @@ const deleteJournal = async () => {
   } catch {
     return;
   }
-  emit("refreshPosts");
+  emit("refreshJournals");
+};
+
+const addUser = async (username: string) => {
+  const userId = await fetchy(`/api/users/$username`, "GET");
+  await fetchy(`/api/journals/users/${userId._id}`, "GET");
 };
 </script>
 
 <template>
-  <p class="title">{{ props.journal.title }}</p>
+  <!-- <RouterLink :to="{ name: 'Journal', params: { journal: props.journal } }"></RouterLink> -->
+  <h3 class="title">Journal: {{ props.journal.title }}</h3>
+  <!-- <h4>Contents: {{ props.journal.objects }}</h4> -->
+  <h4>Owner: {{ currentUsername }}</h4>
+  <h5># of Entries: {{ props.journal.objects.length }}</h5>
+  <!-- <addUserFormComponent @addUser='/> -->
+  <button class="button-error btn-small pure-button" @click="deleteJournal">Delete</button>
 </template>
 
-<style scoped>
-p {
-  margin: 0em;
-}
-
-.author {
-  font-weight: bold;
-  font-size: 1.2em;
-}
-
-.title {
-  font-weight: bold;
-  font-size: 1.2em;
-}
-
-menu {
-  list-style-type: none;
-  display: flex;
-  flex-direction: row;
-  gap: 1em;
-  padding: 0;
-  margin: 0;
-}
-
-.timestamp {
-  display: flex;
-  justify-content: flex-end;
-  font-size: 0.9em;
-  font-style: italic;
-}
-
-.base {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.base article:only-child {
-  margin-left: auto;
-}
-</style>
+<style scoped></style>
