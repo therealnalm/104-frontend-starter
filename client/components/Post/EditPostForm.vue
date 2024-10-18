@@ -30,7 +30,6 @@ const editPost = async (content: string) => {
       </menu>
       <p v-if="props.post.dateCreated !== props.post.dateUpdated" class="timestamp">Edited on: {{ formatDate(props.post.dateUpdated) }}</p>
       <p v-else class="timestamp">Created on: {{ formatDate(props.post.dateCreated) }}</p>
-      <p>{{ post._id }}</p>
     </div>
   </form>
 </template>
