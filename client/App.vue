@@ -23,7 +23,7 @@ onBeforeMount(async () => {
 
 <template>
   <header>
-    <nav>
+    <footer>
       <div class="title">
         <img src="@/assets/images/logo.svg" />
         <RouterLink :to="{ name: 'Home' }">
@@ -35,7 +35,7 @@ onBeforeMount(async () => {
           <RouterLink :to="{ name: 'Home' }" :class="{ underline: currentRouteName == 'Home' }"> Home </RouterLink>
         </li>
         <li>
-          <RouterLink :to="{ name: 'Journals' }" :class="{ underline: currentRouteName == 'MyJournals' }"> My Journals </RouterLink>
+          <RouterLink :to="{ name: 'MyJournals' }" :class="{ underline: currentRouteName == 'MyJournals' }"> My Journals </RouterLink>
         </li>
         <li v-if="isLoggedIn">
           <RouterLink :to="{ name: 'Settings' }" :class="{ underline: currentRouteName == 'Settings' }"> Settings </RouterLink>
@@ -44,7 +44,7 @@ onBeforeMount(async () => {
           <RouterLink :to="{ name: 'Login' }" :class="{ underline: currentRouteName == 'Login' }"> Login </RouterLink>
         </li>
       </ul>
-    </nav>
+    </footer>
     <article v-if="toast !== null" class="toast" :class="toast.style">
       <p>{{ toast.message }}</p>
     </article>

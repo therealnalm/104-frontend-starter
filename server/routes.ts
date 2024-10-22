@@ -174,6 +174,14 @@ class Routes {
     return output;
   }
 
+  @Router.get("/users/id/:id")
+  async getUserFromId(id: string) {
+    const actId = new ObjectId(id);
+    const output = await Authing.getUserById(actId);
+    console.log(output);
+    return output;
+  }
+
   //when registering a new user, their own 'self' journal is automatically created
   @Router.post("/users")
   async createUser(session: SessionDoc, username: string, password: string) {

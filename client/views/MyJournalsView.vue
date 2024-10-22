@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import JournalListComponent from "@/components/Journal/JournalListComponent.vue";
+import HomeBarComponent from "@/components/Utility/HomeBarComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 
@@ -14,4 +15,12 @@ const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
     </section>
     <JournalListComponent />
   </main>
+  <HomeBarComponent />
 </template>
+
+<style scoped>
+.main {
+  padding-bottom: 100px;
+  overflow-y: auto;
+}
+</style>

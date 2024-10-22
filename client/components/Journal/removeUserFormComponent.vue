@@ -2,13 +2,13 @@
 import { ref, defineEmits } from "vue";
 
 const user = ref("");
-const emit = defineEmits(["addUser"]);
+const emit = defineEmits(["remUser"]);
 </script>
 
 <template>
-  <form @submit.prevent="emit('addUser', user)" class="pure-form">
+  <form @submit.prevent="emit('remUser', user)" class="pure-form">
     <fieldset>
-      <legend>Add User to Journal</legend>
+      <legend>Remove a user from Journal</legend>
       <input id="user" type="text" v-model="user" placeholder="Username" />
       <button type="submit" class="pure-button pure-button-primary">Submit</button>
     </fieldset>

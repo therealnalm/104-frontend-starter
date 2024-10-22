@@ -27,3 +27,16 @@ const emptyForm = () => {
     <button type="submit" class="pure-button-primary pure-button">Create Journal</button>
   </form>
 </template>
+
+<style scoped>
+form {
+  background-color: var(--base-bg);
+  border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 1em;
+  width: 33.33vw;
+  align-items: center;
+}
+</style>

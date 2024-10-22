@@ -7,6 +7,8 @@ import LoginView from "../views/LoginView.vue";
 import MyJournalsView from "../views/MyJournalsView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import SettingView from "../views/SettingView.vue";
+import SharedJournalsView from "../views/SharedJournalsView.vue";
+import SingleJournalView from "../views/SingleJournalView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -35,9 +37,9 @@ const router = createRouter({
       },
     },
     {
-      path: "/journal/:id",
+      path: "/journal",
       name: "Journal",
-      component: SettingView,
+      component: SingleJournalView,
       meta: { requiresAuth: true },
     },
     {
@@ -46,9 +48,14 @@ const router = createRouter({
       component: NotFoundView,
     },
     {
-      path: "/Journals",
-      name: "Journals",
+      path: "/MyJournals",
+      name: "MyJournals",
       component: MyJournalsView,
+    },
+    {
+      path: "/SharedJournals",
+      name: "SharedJournals",
+      component: SharedJournalsView,
     },
   ],
 });
