@@ -77,18 +77,19 @@ export default class JournalingConcept {
       throw new NotFoundError(`${objectRem.toString} not found in journal: ${_id.toString}`);
     }
     const contents = journal.objects.filter((obj) => obj !== objectRem);
-    this.journals.partialUpdateOne({ _id }, { objects: contents });
+    await this.journals.partialUpdateOne({ _id }, { objects: contents });
     return { msg: "Removed object succesfully!" };
   }
 
   async removeObjectFromAll(objectRem: object) {
-    const journals = await this.journals.readMany({ objects: objectRem });
+    const journals = await this.journals.readMany({ objects: { $in: [objectRem] } });
+    console.log("length:" + journals.length);
     if (!journals) {
       throw new NotFoundError(`No Journal found containing: ${objectRem}`);
     }
 
     for (const journal of journals) {
-      const contents = journal.objects.filter((obj) => obj !== objectRem);
+      const contents = journal.objects.filter((obj) => !obj.equals(objectRem));
       await this.journals.partialUpdateOne({ _id: journal._id }, { objects: contents }); //this could be very slow for a lot of journals
     }
     return { msg: "Succesfully removed entry from all journals!" };

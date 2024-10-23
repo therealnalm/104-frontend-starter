@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
-import { fetchy } from "../../utils/fetchy";
-import { ref, onBeforeMount } from "vue";
 import addUserFormComponent from "@/components/Journal/addUserFormComponent.vue";
 import removeUserFormComponent from "@/components/Journal/removeUserFormComponent.vue";
+import router from "@/router";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import { onBeforeMount, ref } from "vue";
+import { fetchy } from "../../utils/fetchy";
 
 const props = defineProps(["journal", "selfOwned"]);
 const emit = defineEmits(["editJournal", "refreshJournals"]);
@@ -29,13 +30,16 @@ onBeforeMount(async () => {
 });
 
 const addUser = async (username: string) => {
-  const userId = await fetchy(`/api/users/${username}`, "GET");
-  await fetchy(`/api/journals/users/${userId._id}`, "GET");
+  await fetchy(`/api/journals/users/${username}`, "POST", { query: { journalid: props.journal._id } });
 };
 
 const removeUser = async (username: string) => {
-  const userId = await fetchy(`/api/users/${username}`, "GET");
-  await fetchy(`/api/journals/users/${userId._id}`, "GET");
+  console.log("deleting user:" + username);
+  await fetchy(`/api/journals/users/${username}`, "DELETE", { query: { journalid: props.journal._id } });
+};
+
+const viewContents = () => {
+  void router.push({ name: "Journal", params: { id: props.journal._id } });
 };
 </script>
 
@@ -44,13 +48,11 @@ const removeUser = async (username: string) => {
     <!-- <RouterLink :to="{ name: 'Journal', params: { journal: props.journal } }"></RouterLink> -->
     <h3 class="title">{{ props.journal.title }}</h3>
     <h4>Owner: {{ owner }}</h4>
-    <h5># of Entries: {{ props.journal.objects.length }}</h5>
-    <addUserFormComponent @addUser="addUser" />
-    <removeUserFormComponent @remUser="removeUser" />
+    <h5># of Entries: {{ props.journal.objects.length }}, {{ props.journal.objects }}</h5>
+    <addUserFormComponent v-if="props.journal.title !== 'self'" @addUser="addUser" />
+    <removeUserFormComponent v-if="props.journal.title !== 'self'" @remUser="removeUser" />
     <button class="button-error btn-small pure-button" @click="deleteJournal">Delete</button>
-    <button class="button btn-small pure-button">
-      <!-- <RouterLink :to="{ name: 'Journal', params: { id: params.journal._id, journal: params.journal } }"> View Contents </RouterLink> -->
-    </button>
+    <button class="button btn-medium pure-button" @click="viewContents">View Contents</button>
   </body>
 </template>
 

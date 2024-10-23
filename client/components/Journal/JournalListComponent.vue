@@ -24,7 +24,7 @@ async function getJournals() {
   }
   journalIds.value = journalIdResults;
   for (const id of journalIdResults) {
-    const temp = await fetchy(`/api/journals/${id}`, "GET");
+    const temp = await fetchy(`/api/journals/contents/${id}`, "GET");
     journals.value.push(temp.journal);
   }
 }
@@ -47,7 +47,6 @@ onBeforeMount(async () => {
   <section class="posts" v-if="journals.length !== 0">
     <article v-for="journal in journals" :key="journal._id">
       <JournalComponent :journal="journal" selfOwned="true" @refreshJournals="getJournals" />
-      <!-- <JournalComponent :journal="journal" /> -->
     </article>
   </section>
 </template>

@@ -23,9 +23,9 @@ export default class PermissioningConcept {
   }
 
   async createPerm(object: ObjectId) {
-    this.checkObjectIsUnique(object);
+    await this.checkObjectIsUnique(object);
     const _id = await this.perms.createOne({ object, users: [] });
-    return { msg: "PermissionLog created successfully!", title: await this.perms.readOne({ _id }) };
+    return { msg: "PermissionLog created successfully!", id: _id };
   }
 
   // I don't think this is actually necessary
@@ -59,7 +59,7 @@ export default class PermissioningConcept {
   }
 
   async getAuthorizedUsers(_id: ObjectId) {
-    const objectPerms = await this.perms.readOne({ _id });
+    const objectPerms = await this.perms.readOne({ object: _id });
     if (!objectPerms) {
       throw new NotFoundError(`No permissions found associated with ${_id}`);
     }
@@ -76,7 +76,7 @@ export default class PermissioningConcept {
     if (objectPerms == null) {
       throw new NotFoundError(`No object found in perms: ${object.toString}`);
     }
-    if (objectPerms.users.includes(user)) {
+    if (objectPerms.users.some((currUser) => currUser.equals(user))) {
       throw new NotAllowedError(`User already has perm: ${object.toString}`);
     }
     objectPerms.users.push(user);
@@ -86,15 +86,16 @@ export default class PermissioningConcept {
   }
 
   async removeUserPerm(user: ObjectId, object: object) {
-    const objectPerms = await this.perms.readOne({ object });
+    const objectPerms = await this.perms.readOne({ object: object });
+    console.log("curr users: " + objectPerms?.users);
     if (objectPerms == null) {
       throw new NotFoundError(`No object found in perms: ${object.toString}`);
     }
-    if (!objectPerms.users.includes(user)) {
+    if (!objectPerms.users.some((currUser) => currUser.equals(user))) {
       throw new NotAllowedError(`user does not have perm: ${object.toString}`);
     }
-    const newUsers = objectPerms.users.filter((currUser) => currUser !== user);
-    await this.perms.partialUpdateOne({ object }, { users: newUsers });
+    const newUsers = objectPerms.users.filter((currUser) => !currUser.equals(user));
+    await this.perms.partialUpdateOne({ _id: objectPerms._id }, { users: newUsers });
     return { msg: `removed user: ${user} from perm: ${object}!` };
   }
   /**
@@ -103,7 +104,7 @@ export default class PermissioningConcept {
    * @throws a NotAllowedError if the user does not have permissions for the Object
    */
   async hasPerm(user: ObjectId, object: object) {
-    const objectPerms = await this.perms.readOne({ object });
+    const objectPerms = await this.perms.readOne({ object: object });
     if (objectPerms == null) {
       throw new NotFoundError(`No permissions found for object: ${object.toString}`);
     } else if (!objectPerms.users.some((id) => user.equals(id))) {

@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 import { Router, getExpressRouter } from "./framework/router";
 
 import { Authing, Friending, Journaling, Permissioning, Posting, Sessioning, Threading } from "./app";
-import { PostOptions } from "./concepts/posting";
+import { PostDoc, PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import Responses from "./responses";
 
@@ -91,22 +91,22 @@ class Routes {
     const user = Sessioning.getUser(session);
     const perms = await Permissioning.getAuthorizedActions(user);
     const journals = perms.map((perm) => perm.object);
-    console.log("here!");
     return journals;
   }
 
-  @Router.post("/journals/:journlaid")
-  async addJournalEntry(session: SessionDoc, journalid: string, entryid: string) {
+  @Router.patch("/journals/:journalTitle")
+  async addJournalEntry(session: SessionDoc, journalTitle: string, ownerUsername: string, entryid: string) {
     //come back and update entry object
-    const journal = new ObjectId(journalid);
+    const journalOwner = await Authing.getUserByUsername(ownerUsername);
+    const journal = await Journaling.getJournalByName(journalTitle, journalOwner._id);
     const entry = new ObjectId(entryid);
-    const user = Sessioning.getUser(session);
-    await Posting.assertAuthorIsUser(entry, user);
-    await Permissioning.hasPerm(user, entry);
-    return await Journaling.addObject(journal, entry);
+    const actor = Sessioning.getUser(session);
+    await Posting.assertAuthorIsUser(entry, actor);
+    await Permissioning.hasPerm(actor, journal);
+    return await Journaling.addObject(journal._id, entry);
   }
 
-  @Router.delete("/journals/:journalid/:entryid")
+  @Router.delete("/journals/entry/:journalid/:entryid")
   async removeJournalEntry(session: SessionDoc, journalid: string, entryid: string) {
     const journal = new ObjectId(journalid);
     const entry = new ObjectId(entryid);
@@ -115,14 +115,22 @@ class Routes {
     return await Journaling.removeObject(journal, entry);
   }
 
-  @Router.get("/journals/:journalid")
+  @Router.get("/journals/contents/:journalid")
   async getJournalContents(session: SessionDoc, journalid: string) {
     const user = Sessioning.getUser(session);
     const journal = new ObjectId(journalid);
     await Permissioning.hasPerm(user, journal);
     const result = await Journaling.getJournalById(journal);
-    console.log(`out: ${result.title}`);
     return { msg: `Successfully got journal!`, journal: result };
+  }
+
+  @Router.get("/journals/find/:title/:owner")
+  async getJournalFromName(session: SessionDoc, title: string, owner: string) {
+    const user = Sessioning.getUser(session);
+    const jOwner = await Authing.getUserByUsername(owner);
+    const journal = await Journaling.getJournalByName(title, jOwner._id);
+    await Permissioning.hasPerm(user, journal._id);
+    return { msg: `Successfully got journal!`, journal: journal };
   }
 
   @Router.post("/journals/users/:username")
@@ -143,16 +151,20 @@ class Routes {
     const journal = new ObjectId(journalid);
     await Permissioning.hasPerm(admin, journal);
     const user = await Authing.getUserByUsername(username);
+    if (user._id.equals(admin)) {
+      throw new NotAllowedError("Can't remove journal owner from a journal");
+    }
     await Permissioning.removeUserPerm(user._id, journal);
     return { msg: `Successfully removed user ${user} from journal ${journal} ` };
   }
   //Gets a list of authorized users for a journal
-  @Router.get("/journals/users")
+  @Router.get("/journals/users/:journalid")
   async getJournalUsers(session: SessionDoc, journalid: string) {
     const user = Sessioning.getUser(session);
     const journal = new ObjectId(journalid);
     await Permissioning.hasPerm(user, journal);
-    return await Permissioning.getAuthorizedUsers(journal);
+    const result = await Permissioning.getAuthorizedUsers(journal);
+    return result;
   }
 
   @Router.get("/session")
@@ -166,11 +178,10 @@ class Routes {
     return await Authing.getUsers();
   }
 
-  @Router.get("/users/:username")
+  @Router.get("/users/name/:username")
   @Router.validate(z.object({ username: z.string().min(1) }))
   async getUser(username: string) {
     const output = await Authing.getUserByUsername(username);
-    console.log(output);
     return output;
   }
 
@@ -178,7 +189,6 @@ class Routes {
   async getUserFromId(id: string) {
     const actId = new ObjectId(id);
     const output = await Authing.getUserById(actId);
-    console.log(output);
     return output;
   }
 
@@ -211,6 +221,11 @@ class Routes {
     const user = Sessioning.getUser(session);
     Sessioning.end(session);
     const selfJournal = await Journaling.getJournalByName("self", user);
+    const posts = await Posting.getByAuthor(user);
+    void (await posts.map(async (post) => {
+      await Journaling.removeObjectFromAll(post._id);
+      await Posting.delete(post._id);
+    }));
     await Journaling.delete(selfJournal._id);
     return await Authing.delete(user);
   }
@@ -228,17 +243,33 @@ class Routes {
     return { msg: "Logged out!" };
   }
 
-  @Router.get("/posts")
-  @Router.validate(z.object({ author: z.string().optional() }))
-  async getPosts(author?: string) {
+  @Router.get("/posts/all")
+  async getPosts(author?: string, journalid?: string) {
     let posts;
     if (author) {
       const id = (await Authing.getUserByUsername(author))._id;
       posts = await Posting.getByAuthor(id);
+    } else if (journalid) {
+      const journalId = new ObjectId(journalid);
+      const contents = (await Journaling.getJournalById(journalId)).objects as ObjectId[];
+      console.log("early: " + contents);
+      posts = await Promise.all(
+        contents.map(async (postId) => {
+          const result = (await Posting.getById(postId)) as PostDoc;
+          console.log("result: " + result);
+          return result;
+        }),
+      );
+      console.log("posts:" + posts);
+      if (posts == null) {
+        throw new NotAllowedError("Journal contains non-existent post");
+      }
     } else {
       posts = await Posting.getPosts();
+      console.log("all: " + posts);
     }
-    return Responses.posts(posts);
+    const result = await Responses.posts(posts);
+    return result;
   }
 
   @Router.post("/posts")
@@ -266,6 +297,13 @@ class Routes {
     await Posting.assertAuthorIsUser(oid, user);
     await Journaling.removeObjectFromAll(oid);
     return Posting.delete(oid);
+  }
+
+  @Router.get("/posts/content/:id")
+  async getPostFromId(session: SessionDoc, id: string) {
+    const oid = new ObjectId(id);
+    const result = await Posting.getById(oid);
+    return result;
   }
 
   @Router.get("/friends")

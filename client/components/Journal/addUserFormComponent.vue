@@ -1,5 +1,5 @@
-<script>
-import { ref, defineEmits } from "vue";
+<script setup lang="ts">
+import { defineEmits, ref } from "vue";
 
 const user = ref("");
 const emit = defineEmits(["addUser"]);

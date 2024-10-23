@@ -37,7 +37,7 @@ const router = createRouter({
       },
     },
     {
-      path: "/journal",
+      path: "/journal/:id",
       name: "Journal",
       component: SingleJournalView,
       meta: { requiresAuth: true },
