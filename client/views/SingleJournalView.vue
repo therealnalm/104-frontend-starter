@@ -6,13 +6,15 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 const journalId = route.params.id.toString();
-let journal: object;
+let journal: JournalDoc;
+let title = ref("");
 let usernames: object[];
 const loaded = ref(false);
 
 async function getJournal() {
   const response = await fetchy(`/api/journals/contents/${journalId}`, "GET");
   journal = response.journal;
+  title.value = journal.title;
   const users = await fetchy(`/api/journals/users/${journalId}`, "GET");
   usernames = await Promise.all(
     users.map(async (id: object) => {
@@ -30,7 +32,7 @@ onBeforeMount(async () => {
 
 <template>
   <main v-if="loaded">
-    <h1>{{ journal.title }}</h1>
+    <h1>{{ title }}</h1>
     Users:
     <div v-for="name in usernames" :key="name">{{ name }}</div>
     <postsInJournalComponent :journal="journal" />

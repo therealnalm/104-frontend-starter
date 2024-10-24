@@ -22,7 +22,7 @@ async function getJournals() {
   }
   journalIds.value = journalIdResults;
   journals.value = await Promise.all(
-    journalIdResults.map(async (id) => {
+    journalIdResults.map(async (id: object) => {
       return (await fetchy(`/api/journals/contents/${id}`, "GET")).journal;
     }),
   );
