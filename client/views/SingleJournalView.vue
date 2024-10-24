@@ -11,14 +11,13 @@ let usernames: object[];
 const loaded = ref(false);
 
 async function getJournal() {
-  console.log("hello" + journalId);
   const response = await fetchy(`/api/journals/contents/${journalId}`, "GET");
   journal = response.journal;
-  console.log("continuing");
   const users = await fetchy(`/api/journals/users/${journalId}`, "GET");
   usernames = await Promise.all(
-    users.map(async (id) => {
-      return (await fetchy(`/api/users/id/${id}`, "GET")).username;
+    users.map(async (id: object) => {
+      const result = await fetchy(`/api/users/id/${id}`, "GET");
+      return result.username;
     }),
   );
   loaded.value = true;

@@ -23,9 +23,9 @@ const deleteJournal = async () => {
 
 onBeforeMount(async () => {
   if (props.selfOwned) {
-    owner.value = currentUsername;
+    owner.value = currentUsername.toString();
   } else {
-    owner.value = await fetchy(`/api/users/id/${props.journal.owner}`).username;
+    owner.value = (await fetchy(`/api/users/id/${props.journal.owner}`, "GET")).username;
   }
 });
 
