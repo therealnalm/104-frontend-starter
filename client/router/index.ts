@@ -14,7 +14,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: "/",
+      path: "/posts",
       name: "Home",
       component: HomeView,
     },
@@ -48,7 +48,7 @@ const router = createRouter({
       component: NotFoundView,
     },
     {
-      path: "/MyJournals",
+      path: "/",
       name: "MyJournals",
       component: MyJournalsView,
     },
