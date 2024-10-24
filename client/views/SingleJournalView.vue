@@ -4,9 +4,14 @@ import { fetchy } from "@/utils/fetchy";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 
+interface JournalDoc {
+  title: string;
+  objects: object[];
+}
+
 const route = useRoute();
 const journalId = route.params.id.toString();
-let journal: object;
+let journal: JournalDoc;
 let title = ref("");
 let usernames: object[];
 const loaded = ref(false);
