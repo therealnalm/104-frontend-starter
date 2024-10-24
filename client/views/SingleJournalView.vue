@@ -6,7 +6,7 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 const journalId = route.params.id.toString();
-let journal: JournalDoc;
+let journal: object;
 let title = ref("");
 let usernames: object[];
 const loaded = ref(false);
