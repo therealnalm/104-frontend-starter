@@ -48,7 +48,7 @@ export default class JournalingConcept {
     return await this.journals.readMany({}, { sort: { _id: -1 } });
   }
 
-  async addObject(_id: ObjectId, object: object) {
+  async addObject(_id: ObjectId, object: ObjectId) {
     const journal = await this.journals.readOne({ _id });
     if (journal == null) {
       throw new NotFoundError(`No Journal found with that name`);
@@ -69,7 +69,7 @@ export default class JournalingConcept {
   }
 
   //Removes an object from a specific journal
-  async removeObject(_id: ObjectId, objectRem: object) {
+  async removeObject(_id: ObjectId, objectRem: ObjectId) {
     const journal = await this.journals.readOne({ _id });
     if (journal == null) {
       console.log("1");
@@ -84,7 +84,7 @@ export default class JournalingConcept {
     return { msg: "Removed object succesfully!" };
   }
 
-  async removeObjectFromAll(objectRem: object) {
+  async removeObjectFromAll(objectRem: ObjectId) {
     const journals = await this.journals.readMany({ objects: { $in: [objectRem] } });
     console.log("length:" + journals.length);
     if (!journals) {
