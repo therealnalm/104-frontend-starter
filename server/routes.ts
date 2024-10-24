@@ -94,24 +94,26 @@ class Routes {
     return journals;
   }
 
-  @Router.patch("/journals/:journalTitle")
+  @Router.patch("/journals/:journalTitle/:ownerUsername/:entryid")
   async addJournalEntry(session: SessionDoc, journalTitle: string, ownerUsername: string, entryid: string) {
-    //come back and update entry object
     const journalOwner = await Authing.getUserByUsername(ownerUsername);
     const journal = await Journaling.getJournalByName(journalTitle, journalOwner._id);
     const entry = new ObjectId(entryid);
     const actor = Sessioning.getUser(session);
     await Posting.assertAuthorIsUser(entry, actor);
-    await Permissioning.hasPerm(actor, journal);
+    await Permissioning.hasPerm(actor, journal._id);
     return await Journaling.addObject(journal._id, entry);
   }
 
   @Router.delete("/journals/entry/:journalid/:entryid")
   async removeJournalEntry(session: SessionDoc, journalid: string, entryid: string) {
+    console.log("up");
     const journal = new ObjectId(journalid);
     const entry = new ObjectId(entryid);
     const user = Sessioning.getUser(session);
+    console.log("mm");
     await Permissioning.hasPerm(user, journal);
+    console.log("yuh");
     return await Journaling.removeObject(journal, entry);
   }
 

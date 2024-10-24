@@ -31,7 +31,7 @@ export default class JournalingConcept {
   async getJournalById(_id: ObjectId) {
     const journal = await this.journals.readOne({ _id });
     if (journal == null) {
-      throw new NotFoundError(`No Journal found with id: ${_id.toString}`);
+      throw new NotFoundError(`No Journal found with id: ${_id.toString()}`);
     }
     return journal;
   }
@@ -53,9 +53,10 @@ export default class JournalingConcept {
     if (journal == null) {
       throw new NotFoundError(`No Journal found with that name`);
     }
-    if (journal.objects.includes(object)) {
-      throw new NotAllowedError(`${object.toString} already inside journal`);
+    if (journal.objects.some((obj) => obj.equals(object))) {
+      throw new NotAllowedError(`${object.toString()} already inside journal`);
     }
+
     journal.objects.push(object);
     await this.journals.partialUpdateOne({ _id }, { objects: journal.objects });
     return { msg: "Added object succesfully!" };
@@ -71,12 +72,14 @@ export default class JournalingConcept {
   async removeObject(_id: ObjectId, objectRem: object) {
     const journal = await this.journals.readOne({ _id });
     if (journal == null) {
-      throw new NotFoundError(`No Journal found with id: ${_id.toString}`);
+      console.log("1");
+      throw new NotFoundError(`No Journal found with id: ${_id.toString()}`);
     }
-    if (!journal.objects.includes(objectRem)) {
-      throw new NotFoundError(`${objectRem.toString} not found in journal: ${_id.toString}`);
+    if (!journal.objects.some((obj) => obj.equals(objectRem))) {
+      console.log("2");
+      throw new NotFoundError(`${objectRem} not found in journal: ${_id}`);
     }
-    const contents = journal.objects.filter((obj) => obj !== objectRem);
+    const contents = journal.objects.filter((obj) => !obj.equals(objectRem));
     await this.journals.partialUpdateOne({ _id }, { objects: contents });
     return { msg: "Removed object succesfully!" };
   }
@@ -105,7 +108,7 @@ export default class JournalingConcept {
     if (journal == null) {
       throw new NotFoundError(`Journal was not found`);
     }
-    if (!journal.objects.includes(object)) {
+    if (!journal.objects.some((obj) => obj.equals(object))) {
       throw new NotFoundError(`Journal did not contain object: ${object}`);
     }
   }

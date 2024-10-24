@@ -19,7 +19,7 @@ async function getPosts() {
 }
 
 async function removePost(postId: ObjectId) {
-  await fetchy(`/api/journals/find/${props.journal._id}/${postId}`, "DELETE");
+  await fetchy(`/api/journals/entry/${props.journal._id}/${postId}`, "DELETE");
   await getPosts();
 }
 

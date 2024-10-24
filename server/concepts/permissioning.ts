@@ -105,6 +105,7 @@ export default class PermissioningConcept {
    */
   async hasPerm(user: ObjectId, object: object) {
     const objectPerms = await this.perms.readOne({ object: object });
+    console.log("investigate user: " + user + " and " + objectPerms);
     if (objectPerms == null) {
       throw new NotFoundError(`No permissions found for object: ${object.toString}`);
     } else if (!objectPerms.users.some((id) => user.equals(id))) {

@@ -23,8 +23,10 @@ const deletePost = async () => {
 };
 
 async function addToJournal() {
-  console.log(journalAddTitle.value);
-  await fetchy(`/api/journals/${journalAddTitle.value}`, "PATCH", { query: { ownerUsername: journalAddAuthor.value, entryid: props.post._id } });
+  console.log(journalAddTitle.value + " and " + journalAddAuthor.value + " and " + props.post._id);
+  await fetchy(`/api/journals/${journalAddTitle.value}/${journalAddAuthor.value}/${props.post._id}`, "PATCH");
+  journalAddAuthor.value = "";
+  journalAddTitle.value = "";
 }
 </script>
 
