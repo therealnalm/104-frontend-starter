@@ -53,7 +53,7 @@ export default class JournalingConcept {
     if (journal == null) {
       throw new NotFoundError(`No Journal found with that name`);
     }
-    if (journal.objects.some((obj) => obj.equals(object))) {
+    if (journal.objects.some((obj) => object.toString() == obj.toString())) {
       throw new NotAllowedError(`${object.toString()} already inside journal`);
     }
 
@@ -75,11 +75,11 @@ export default class JournalingConcept {
       console.log("1");
       throw new NotFoundError(`No Journal found with id: ${_id.toString()}`);
     }
-    if (!journal.objects.some((obj) => obj.equals(objectRem))) {
+    if (!journal.objects.some((obj) => obj.toString() == objectRem.toString())) {
       console.log("2");
       throw new NotFoundError(`${objectRem} not found in journal: ${_id}`);
     }
-    const contents = journal.objects.filter((obj) => !obj.equals(objectRem));
+    const contents = journal.objects.filter((obj) => obj.toString() !== objectRem.toString());
     await this.journals.partialUpdateOne({ _id }, { objects: contents });
     return { msg: "Removed object succesfully!" };
   }
@@ -92,7 +92,7 @@ export default class JournalingConcept {
     }
 
     for (const journal of journals) {
-      const contents = journal.objects.filter((obj) => !obj.equals(objectRem));
+      const contents = journal.objects.filter((obj) => obj.toString() !== objectRem.toString());
       await this.journals.partialUpdateOne({ _id: journal._id }, { objects: contents }); //this could be very slow for a lot of journals
     }
     return { msg: "Succesfully removed entry from all journals!" };
@@ -108,7 +108,7 @@ export default class JournalingConcept {
     if (journal == null) {
       throw new NotFoundError(`Journal was not found`);
     }
-    if (!journal.objects.some((obj) => obj.equals(object))) {
+    if (!journal.objects.some((obj) => obj.toString() == object.toString())) {
       throw new NotFoundError(`Journal did not contain object: ${object}`);
     }
   }
