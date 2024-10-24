@@ -2,7 +2,7 @@
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, ref } from "vue";
+import { defineProps, onBeforeMount, ref } from "vue";
 import CreateJournalForm from "./CreateJournalForm.vue";
 import JournalComponent from "./JournalComponent.vue";
 
@@ -10,22 +10,27 @@ const loaded = ref(false);
 let journalIds = ref<Array<Record<string, string>>>([]);
 let journals = ref<Array<Record<string, string>>>([]);
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
-let user = ref();
+const props = defineProps(["shared"]);
 
 async function getJournals() {
   let journalIdResults;
   journals.value = [];
   try {
     journalIdResults = await fetchy("/api/journals", "GET");
-    // console.log(journalIdResults);
-    // console.log("test");
   } catch (_) {
     return;
   }
   journalIds.value = journalIdResults;
-  for (const id of journalIdResults) {
-    const temp = await fetchy(`/api/journals/contents/${id}`, "GET");
-    journals.value.push(temp.journal);
+  journals.value = await Promise.all(
+    journalIdResults.map(async (id) => {
+      return (await fetchy(`/api/journals/contents/${id}`, "GET")).journal;
+    }),
+  );
+  const user = await fetchy(`/api/session`, "GET");
+  if (props.shared) {
+    journals.value = journals.value.filter((journal) => journal.owner.toString() !== user._id.toString());
+  } else {
+    journals.value = journals.value.filter((journal) => journal.owner.toString() == user._id.toString());
   }
 }
 
@@ -41,12 +46,12 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <section>
+  <section v-if="!props.shared">
     <CreateJournalForm @refreshJournals="getJournals" />
   </section>
   <section class="posts" v-if="journals.length !== 0">
     <article v-for="journal in journals" :key="journal._id">
-      <JournalComponent :journal="journal" selfOwned="true" @refreshJournals="getJournals" />
+      <JournalComponent :journal="journal" :self-owned="!props.shared" @refreshJournals="getJournals" />
     </article>
   </section>
 </template>

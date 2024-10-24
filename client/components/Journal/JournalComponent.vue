@@ -48,7 +48,7 @@ const viewContents = () => {
     <!-- <RouterLink :to="{ name: 'Journal', params: { journal: props.journal } }"></RouterLink> -->
     <h3 class="title">{{ props.journal.title }}</h3>
     <h4>Owner: {{ owner }}</h4>
-    <h5># of Entries: {{ props.journal.objects.length }}, {{ props.journal.objects }}</h5>
+    <h5># of Entries: {{ props.journal.objects.length }}</h5>
     <addUserFormComponent v-if="props.journal.title !== 'self'" @addUser="addUser" />
     <removeUserFormComponent v-if="props.journal.title !== 'self'" @remUser="removeUser" />
     <button class="button-error btn-small pure-button" @click="deleteJournal">Delete</button>

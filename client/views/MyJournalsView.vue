@@ -13,7 +13,7 @@ const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
       <h1 v-if="isLoggedIn">{{ currentUsername }}'s Journals</h1>
       <h1 v-else>Login to see your Journals</h1>
     </section>
-    <JournalListComponent />
+    <JournalListComponent :shared="false" />
   </main>
   <HomeBarComponent />
 </template>
