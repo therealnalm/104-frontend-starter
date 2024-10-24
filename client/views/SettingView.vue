@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HomeBarComponent from "@/components/Utility/HomeBarComponent.vue";
 import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
@@ -25,4 +26,5 @@ async function delete_() {
     <button class="button-error pure-button" @click="delete_">Delete User</button>
     <UpdateUserForm />
   </main>
+  <HomeBarComponent />
 </template>

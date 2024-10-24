@@ -36,5 +36,5 @@ onBeforeMount(async () => {
     <div v-for="name in usernames" :key="name">{{ name }}</div>
     <postsInJournalComponent :journal="journal" />
   </main>
-  <h1 v-else>Journal {{ journalid }} loading</h1>
+  <h1 v-else>Journal {{ journalId }} loading</h1>
 </template>

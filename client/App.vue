@@ -3,7 +3,7 @@ import { useToastStore } from "@/stores/toast";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { computed, onBeforeMount } from "vue";
-import { RouterLink, RouterView, useRoute } from "vue-router";
+import { RouterView, useRoute } from "vue-router";
 
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
@@ -25,12 +25,12 @@ onBeforeMount(async () => {
   <header>
     <footer>
       <div class="title">
-        <img src="@/assets/images/logo.svg" />
-        <RouterLink :to="{ name: 'Home' }">
-          <h1>OpenJournal</h1>
-        </RouterLink>
+        <!-- <img src="@/assets/images/logo.svg" /> -->
+        <!-- <RouterLink :to="{ name: 'Home' }"> -->
+        <h1>OpenJournal</h1>
+        <!-- </RouterLink> -->
       </div>
-      <ul>
+      <!-- <ul>
         <li>
           <RouterLink :to="{ name: 'Home' }" :class="{ underline: currentRouteName == 'Home' }"> Home </RouterLink>
         </li>
@@ -43,7 +43,7 @@ onBeforeMount(async () => {
         <li v-else>
           <RouterLink :to="{ name: 'Login' }" :class="{ underline: currentRouteName == 'Login' }"> Login </RouterLink>
         </li>
-      </ul>
+      </ul> -->
     </footer>
     <article v-if="toast !== null" class="toast" :class="toast.style">
       <p>{{ toast.message }}</p>
