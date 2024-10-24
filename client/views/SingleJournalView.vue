@@ -34,7 +34,7 @@ onBeforeMount(async () => {
   <main v-if="loaded">
     <h1>{{ title }}</h1>
     Users:
-    <div v-for="name in usernames" :key="name">{{ name }}</div>
+    <div v-for="name in usernames" :key="name.toString()">{{ name }}</div>
     <postsInJournalComponent :journal="journal" />
   </main>
   <h1 v-else>Journal {{ journalId }} loading</h1>
